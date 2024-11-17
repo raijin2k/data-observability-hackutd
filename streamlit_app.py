@@ -313,10 +313,14 @@ class DataObservabilityDashboard:
         )
         
         if creation_metrics and 'by_hour' in creation_metrics:
-            analysis = self.detector.analyze_load_patterns(creation_metrics['by_hour'])
+            # Get analysis with predictions
+            analysis = self.detector.analyze_load_patterns(
+                creation_metrics['by_hour'],
+                creation_metrics['trend_data']
+            )
             
             if analysis:
-                # Display summary metrics
+                # Current metrics (keep existing code)
                 col1, col2, col3 = st.columns(3)
                 
                 with col1:
@@ -339,23 +343,46 @@ class DataObservabilityDashboard:
                         analysis['summary']['low_load_hours'],
                         "potential savings"
                     )
+
+                # Add predictions section
+                if 'predictions' in analysis:
+                    st.subheader("Tomorrow's Predictions")
+                    
+                    # Show predicted peak hours
+                    st.write("**Predicted Peak Hours:**")
+                    for peak in analysis['predictions']['peak_hours']:
+                        status_color = (
+                            "🔴" if peak['status'] == 'high'
+                            else "🟡" if peak['status'] == 'normal'
+                            else "🟢"
+                        )
+                        st.write(
+                            f"{status_color} Hour {peak['hour']:02f}:00 - "
+                            f"Expected: {peak['predicted_load']:.0f} events"
+                        )
+                    
+                    # Show hourly predictions in expandable section
+                    with st.expander("View All Hours Predictions"):
+                        # Create dataframe for plotting
+                        pred_df = pd.DataFrame(analysis['predictions']['next_day'])
+                        
+                        # Plot predictions
+                        fig = px.bar(
+                            pred_df,
+                            x='hour',
+                            y='predicted_load',
+                            color='status',
+                            title="Predicted Load by Hour",
+                            color_discrete_map={
+                                'high': 'red',
+                                'normal': 'yellow',
+                                'low': 'green'
+                            }
+                        )
+                        st.plotly_chart(fig, use_container_width=True)
                 
-                # Display peak hours
-                st.subheader("Peak Hours")
-                for pattern in analysis['summary']['peak_hours']:
-                    status_color = (
-                        "🔴" if pattern['status'] == 'high'
-                        else "🟡" if pattern['status'] == 'normal'
-                        else "🟢"
-                    )
-                    st.write(
-                        f"{status_color} Hour {pattern['hour']:02d}:00 - "
-                        f"{pattern['count']} events "
-                        f"({pattern['load_ratio']:.1f}x average load)"
-                    )
-                
-                # Show detailed patterns in expandable section
-                with st.expander("View All Hours"):
+                # Keep existing detailed patterns display
+                with st.expander("View Current Patterns"):
                     for pattern in analysis['patterns']:
                         st.write(
                             f"Hour {pattern['hour']:02d}:00 - "

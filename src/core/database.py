@@ -278,10 +278,39 @@ class SimpleAnomalyDetector:
             'low_load': 0.9               # 50% below average - potential resource waste
         }
 
-    def analyze_load_patterns(self, hourly_data: dict) -> dict:
+class SimpleAnomalyDetector:
+    def __init__(self):
+        # Keep existing multipliers
+        self.multipliers = {
+            'work_hours': range(9, 18),
+            'work_hours_threshold': 1.1,
+            'off_hours_threshold': 0.9,
+            'high_load': 1.1,
+            'low_load': 0.9
+        }
+
+    def analyze_load_patterns(self, hourly_data: dict, trend_data: list = None) -> dict:
         """
-        Analyze load patterns using dynamic thresholds based on averages
+        Analyze current load and predict future patterns
+        
+        Args:
+            hourly_data: Current hour->count dictionary
+            trend_data: List of historical records with date, hour, source, count
         """
+        # Get current analysis (keep existing code)
+        current_analysis = self._analyze_current_patterns(hourly_data)
+        
+        # Add predictions if trend data is available
+        if trend_data:
+            predictions = self._predict_next_day_load(trend_data)
+            current_analysis['predictions'] = predictions
+            
+        return current_analysis
+
+    def _analyze_current_patterns(self, hourly_data: dict) -> dict:
+        """Existing analysis code moved here"""
+        # Your existing analyze_load_patterns code goes here
+        # (Keep all the current analysis logic)
         if not hourly_data:
             return None
             
@@ -357,3 +386,42 @@ class SimpleAnomalyDetector:
                 'low_load_hours': sum(1 for p in load_patterns if p['status'] == 'low')
             }
         }
+
+    def _predict_next_day_load(self, trend_data: list) -> dict:
+        """
+        Predict next day's load based on historical patterns
+        """
+        df = pd.DataFrame(trend_data)
+        
+        # Convert date to datetime and extract day of week
+        df['date'] = pd.to_datetime(df['date'])
+        df['day_of_week'] = df['date'].dt.dayofweek
+        
+        # Calculate average load by hour and day of week
+        hourly_patterns = df.groupby(['day_of_week', 'hour'])['count'].mean().reset_index()
+        
+        # Get next day predictions
+        tomorrow = datetime.now() + timedelta(days=1)
+        tomorrow_dow = tomorrow.weekday()
+        
+        next_day_predictions = hourly_patterns[
+            hourly_patterns['day_of_week'] == tomorrow_dow
+        ].sort_values('hour')
+        
+        # Identify potential high load periods
+        predictions = []
+        for _, row in next_day_predictions.iterrows():
+            predictions.append({
+                'hour': row['hour'],
+                'predicted_load': row['count'],
+                'status': 'high' if row['count'] > df['count'].mean() * self.multipliers['high_load']
+                         else 'low' if row['count'] < df['count'].mean() * self.multipliers['low_load']
+                         else 'normal'
+            })
+        
+        return {
+            'next_day': predictions,
+            'peak_hours': sorted(predictions, key=lambda x: x['predicted_load'], reverse=True)[:3],
+            'average_predicted': sum(p['predicted_load'] for p in predictions) / len(predictions)
+        }
+
