@@ -105,7 +105,7 @@ A system for monitoring and analyzing data patterns throughout their lifecycle. 
 
 3. Start Docker services
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 4. Initialize databases
