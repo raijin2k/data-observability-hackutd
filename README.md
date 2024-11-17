@@ -94,7 +94,7 @@ A system for monitoring and analyzing data patterns throughout their lifecycle. 
 
 1. Clone repository
    ```bash
-   git clone [repository-url]
+   git clone git@github.com:siddhu-pikachu/data-observability.git
    cd data-observability
    ```
 
@@ -122,14 +122,6 @@ A system for monitoring and analyzing data patterns throughout their lifecycle. 
 ```
 data-observability/
 ├── src/
-│   ├── creation/
-│   │   └── __init__.py
-│   ├── access/
-│   │   └── __init__.py
-│   ├── movement/
-│   │   └── __init__.py
-│   ├── usage/
-│   │   └── __init__.py
 │   └── core/
 │       ├── __init__.py
 │       ├── database.py
@@ -183,23 +175,15 @@ After starting the application, navigate to http://localhost:8501 in your web br
    pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
    ```
 
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details
 
-## Contact
+## Authors
 
-Your Name - your.email@example.com
-Project Link: [https://github.com/yourusername/data-observability](https://github.com/yourusername/data-observability)
+- Siddhu Rapeti : sxr230189@utdallas.edu
+- Abhirup Mukherjee : axm240026@utdallas.edu
+- Project Link: https://github.com/siddhu-pikachu/data-observability
 
 ## Acknowledgments
-- List any resources, libraries, or tools used
-- Credit any inspirations or references
+The code was for this was inspired by PNC Bank's workshop demo code at Hack UTD to solve their challenge statement: As organizations increasingly rely on data to drive decision-making, ensuring a clear understanding of how data is created, accessed, moved, and used is critical for security, performance, and governance. Yet, many organizations struggle to maintain visibility into these data flows, leading to inefficiencies, security risks, and compliance challenges. We challenge you to design an innovative solution that enhances the observability of data patterns throughout its lifecycle.  Your solution should allow organizations to monitor and analyze how data is created, accessed, moved, and used – with business context.
